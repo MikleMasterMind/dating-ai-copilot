@@ -36,7 +36,7 @@ uv run uvicorn app.main:app --reload      # server (http://localhost:8000)
 
 Status format: `[ ]` not started → `[~]` branch in progress → `[x]` merged.
 
-- [~] Branch 1 `docs/mvp-plan` — hunk skill, README, docs/, AGENTS.md
+- [x] Branch 1 `docs/mvp-plan` — hunk skill, README, docs/, AGENTS.md
 - [ ] Branch 2 `feat/scaffold` — pyproject, config, app factory, health check
 - [ ] Branch 3 `feat/db-models` — SQLAlchemy models User, Session, Generation
 - [ ] Branch 4 `feat/auth` — register/login/logout, current_user, tests
