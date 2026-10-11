@@ -36,7 +36,7 @@ Status format: `[ ]` not started → `[~]` branch in progress → `[x]` merged.
 
 - [x] Branch 1 `docs/mvp-plan` — hunk skill, README, docs/, AGENTS.md
 - [x] Branch 2 `feat/scaffold` — pyproject, config, app factory, health check
-- [ ] Branch 3 `feat/db-models` — SQLAlchemy models User, Session, Generation
+- [x] Branch 3 `feat/db-models` — SQLAlchemy models User, Session, Conversation, Message, Generation
 - [ ] Branch 4 `feat/auth` — register/login/logout, current_user, tests
 - [ ] Branch 5 `feat/llm` — LangChain service + structured output, mocked tests
 - [ ] Branch 6 `feat/generate` — POST /api/generate, saving generations, tests
@@ -45,5 +45,5 @@ Status format: `[ ]` not started → `[~]` branch in progress → `[x]` merged.
 
 ## Where we stopped
 
-- Done: `feat/scaffold` merged into `main` with `--no-ff`: pyproject + uv.lock (minimal deps — the rest of the stack arrives via `uv add` in branches 3–7), .gitignore, pydantic-settings config + .env.example, app factory with `include_router`, GET /health in app/routes/health.py, health test, README quick start. Owner's review decision: route definitions live in `app/routes/`
-- Next: Branch 3 `feat/db-models` — `uv add "sqlalchemy[asyncio]" aiosqlite`, app/db.py (async engine, session factory, create_all), User/Session/Generation models
+- Done: `feat/db-models` merged into `main` with `--no-ff`: sqlalchemy[asyncio]+aiosqlite deps; app/models.py — User (+`description`), Session, Conversation (+`match_name`/`match_description`), Message (`sender` "me"/"match", nullable `sent_at`), Generation (+`conversation_id`, `platform` moved to Conversation); app/db.py — engine, session_factory, `init_db` via lifespan; tests/test_models.py (6 tests). Owner's review decisions: conversations are persisted (MVP scope change, docs/mvp-plan.md updated), per-message time edited in the UI, docstrings with column descriptions required
+- Next: Branch 4 `feat/auth` — `uv add "pwdlib[argon2]"`, app/auth.py: register/login/logout, session token in DB + httpOnly cookie, current_user dependency, tests
