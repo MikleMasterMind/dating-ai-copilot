@@ -12,8 +12,6 @@ Python 3.12+ / FastAPI / SQLAlchemy 2.0 async (SQLite, aiosqlite) / LangChain (l
 
 ## Commands
 
-Available after the `feat/scaffold` branch:
-
 ```
 uv sync                                   # dependencies
 uv run pytest                             # tests
@@ -37,7 +35,7 @@ uv run uvicorn app.main:app --reload      # server (http://localhost:8000)
 Status format: `[ ]` not started → `[~]` branch in progress → `[x]` merged.
 
 - [x] Branch 1 `docs/mvp-plan` — hunk skill, README, docs/, AGENTS.md
-- [ ] Branch 2 `feat/scaffold` — pyproject, config, app factory, health check
+- [x] Branch 2 `feat/scaffold` — pyproject, config, app factory, health check
 - [ ] Branch 3 `feat/db-models` — SQLAlchemy models User, Session, Generation
 - [ ] Branch 4 `feat/auth` — register/login/logout, current_user, tests
 - [ ] Branch 5 `feat/llm` — LangChain service + structured output, mocked tests
@@ -47,5 +45,5 @@ Status format: `[ ]` not started → `[~]` branch in progress → `[x]` merged.
 
 ## Where we stopped
 
-- Done: the process switched to hunk review before every commit; the hunk skill is installed and committed; documentation rewritten in English with the owner's review notes applied (login auth, no session expiry, no chat_input persistence — this commit is up for review)
-- Next: merge `docs/mvp-plan` into main, then branch `feat/scaffold`
+- Done: `feat/scaffold` merged into `main` with `--no-ff`: pyproject + uv.lock (minimal deps — the rest of the stack arrives via `uv add` in branches 3–7), .gitignore, pydantic-settings config + .env.example, app factory with `include_router`, GET /health in app/routes/health.py, health test, README quick start. Owner's review decision: route definitions live in `app/routes/`
+- Next: Branch 3 `feat/db-models` — `uv add "sqlalchemy[asyncio]" aiosqlite`, app/db.py (async engine, session factory, create_all), User/Session/Generation models
