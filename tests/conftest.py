@@ -6,6 +6,7 @@ from app.main import create_app
 
 @pytest.fixture
 async def client() -> AsyncClient:
+    """Async HTTP client wired to the app via ASGI transport."""
     app = create_app()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac

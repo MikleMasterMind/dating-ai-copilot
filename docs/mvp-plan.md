@@ -8,9 +8,9 @@ An AI assistant for dating app chats. The user pastes a conversation → gets 3 
 
 1. `/` — guests see a landing page with login/register forms
 2. Register or log in with a login and password
-3. Workspace page: textarea with the pasted conversation + optional platform (Tinder / Bumble / Telegram / other) and goal (get a date / keep the conversation going)
-4. Submit → spinner → 3 cards: tone, text, "why it works", copy button
-5. `/history` — the user's generation history
+3. Workspace: pick or create a conversation (platform: Tinder / Bumble / Telegram / other, match name, initial match description), paste or type in messages; each message has a sender ("me" / "match") and an editable time (defaults to "now")
+4. Optional goal (get a date / keep the conversation going) → submit → spinner → 3 cards: tone, text, "why it works", copy button
+5. `/history` — the user's generation history; stored conversations give the coach full prior context with message times
 
 ## MVP scope
 
@@ -18,6 +18,7 @@ An AI assistant for dating app chats. The user pastes a conversation → gets 3 
 
 - Auth by login + password, sessions
 - 3 reply options per generation (flirty / playful / sincere)
+- Stored conversations: messages with sender and per-message time, fed to the coach prompt as context
 - Saving generations per user and a history page
 - Text-only conversation input
 
@@ -25,7 +26,7 @@ An AI assistant for dating app chats. The user pastes a conversation → gets 3 
 
 - Request limits and monetization
 - Screenshot uploads
-- Prompt personalization based on the user's past conversations
+- Prompt personalization based on the user's other conversations (style learning across chats)
 - CI and automated checks
 
 ## Stack
@@ -46,7 +47,7 @@ app/
 ├── main.py          # app factory, static/templates, include routers
 ├── config.py        # pydantic-settings: OPENAI_API_KEY, OPENAI_MODEL, DATABASE_URL
 ├── db.py            # async engine, session factory, init (create_all)
-├── models.py        # User, Session, Generation
+├── models.py        # User, Session, Conversation, Message, Generation
 ├── auth.py          # pwdlib hashing, register/login/logout, current_user dependency
 ├── llm.py           # ChatOpenAI + structured output, dating-coach prompt
 ├── routes/
@@ -73,6 +74,7 @@ class User:
     id: int (pk)
     login: str (unique)
     password_hash: str
+    description: str | None     # user's self-description for the coach
     created_at: datetime
 
 class Session:
@@ -81,16 +83,34 @@ class Session:
     user_id: FK(User)
     created_at: datetime
 
-class Generation:
+class Conversation:
     id: int (pk)
     user_id: FK(User)
     platform: str | None
+    match_name: str | None
+    match_description: str | None   # initial description of the chat partner
+    created_at: datetime
+
+class Message:
+    id: int (pk)
+    conversation_id: FK(Conversation)
+    sender: str             # "me" | "match"
+    text: str
+    sent_at: datetime | None   # per-message time, editable in the UI
+    created_at: datetime
+
+class Generation:
+    id: int (pk)
+    user_id: FK(User)
+    conversation_id: FK(Conversation)
     goal: str | None
     result_json: str       # serialized Suggestions
     created_at: datetime
 ```
 
-- The pasted conversation is a request parameter and is not persisted in the MVP.
+- Conversations are persisted: messages keep the sender and per-message `sent_at` (editable in the UI), so the prompt gets full prior context with timing.
+- `platform` describes the conversation, `goal` — a single reply request.
+- `User.description` and `Conversation.match_description` feed the coach prompt context about both sides.
 - Sessions do not expire in the MVP.
 - No Alembic in the MVP: `create_all` on app startup.
 
@@ -112,7 +132,7 @@ class Suggestions(BaseModel):
 
 - `ChatOpenAI(model="gpt-4o-mini", temperature=0.8)` — model from config
 - `.with_structured_output(Suggestions)` — guaranteed structure without manual JSON parsing
-- System prompt: a dating-chat coach; replies in Russian; takes platform and goal from the form into account
+- System prompt: a dating-chat coach; replies in Russian; takes the conversation context (messages with senders and times), user self-description, match description, platform and goal into account
 - The LLM call is isolated in `app/llm.py` — easy to mock in tests
 
 ## API
@@ -134,11 +154,11 @@ One branch per feature. One logical chunk per commit, hunk-reviewed before commi
 |---|-------|-----------|
 | 1 | `docs/mvp-plan` | hunk skill in the project, README, docs/, AGENTS.md |
 | 2 | `feat/scaffold` | pyproject (uv), config, app factory, health check, ruff/pytest setup |
-| 3 | `feat/db-models` | db.py, User/Session/Generation models, create_all |
+| 3 | `feat/db-models` | db.py, User/Session/Conversation/Message/Generation models, create_all |
 | 4 | `feat/auth` | register/login/logout, current_user, tests |
 | 5 | `feat/llm` | LangChain service + structured output, mocked tests |
-| 6 | `feat/generate` | POST /api/generate, saving Generation, tests |
-| 7 | `feat/ui` | templates + HTMX: landing, login/register, form, results partial |
+| 6 | `feat/generate` | POST /api/generate, saving Conversation/Message/Generation, tests |
+| 7 | `feat/ui` | templates + HTMX: landing, login/register, conversation form with editable message times, results partial |
 | 8 | `feat/history` | /history page |
 
 ## Testing
