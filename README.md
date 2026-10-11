@@ -23,8 +23,14 @@ Out of MVP scope: request limits, payments, screenshots, CI.
 
 ## Run
 
-> Work in progress — the quick start will appear after the `feat/scaffold` branch.
-> Current status: [AGENTS.md](AGENTS.md#progress).
+```
+uv sync                                   # dependencies
+uv run uvicorn app.main:app --reload      # http://localhost:8000
+```
+
+Checks: `uv run pytest`, `uv run ruff check .`
+
+Current status: [AGENTS.md](AGENTS.md#progress).
 
 ## Documentation
 
