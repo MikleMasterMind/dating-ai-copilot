@@ -26,7 +26,7 @@ uv run uvicorn app.main:app --reload      # server (http://localhost:8000)
 3. Hunk review: the interactive session is the owner's TUI (`hunk diff`, `hunk show`). Never launch the TUI yourself. Drive the live session via `hunk session *` (navigation to important spots, explanatory comments) — skill `.opencode/skills/hunk/SKILL.md`
 4. Commits: Conventional Commits, English (`feat: add login form`), one logical chunk per commit
 5. Documentation: English. Communication with the owner: Russian
-6. No code comments unless requested
+6. Docstrings are required for classes and functions; no code comments unless requested
 7. Tests and linter green before the review pause
 8. After merging a branch, update the checklist below; at the end of a session, fill in the "Where we stopped" section
 
